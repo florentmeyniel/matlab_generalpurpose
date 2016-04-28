@@ -1,9 +1,10 @@
-function KL = dist_KLdiv(Q, P, doWarning)
+function KL = dist_KLdiv(P, Q, doWarning)
 % Compute the Kullback–Leibler divergence between probability distributions 
-% Q and P
+% P and Q. Note that KL is not symmetric. KL(Post, Prior) quantifies the
+% information gain when moving from the prior to the posterior.
 % 
 % Usage:
-% KL = dist_KLdiv(Q, P, doWarning)
+% KL = dist_KLdiv(P, Q, doWarning)
 % NB: doWarning: 1 allow a warning message on whether the distribution is 
 % normalized to sum to 1 or the divergence not defined (default: 0) 
 
@@ -23,15 +24,18 @@ if abs((sum(P) - 1)) > 2*eps
     P = P / sum(P);
 end
 
-% check absolute continuity (when P is 0, then Q is 0)
+% check absolute continuity (when Q is 0, then P is 0)
 indQ0 = find(Q == 0);
 indP0 = find(P == 0);
 if length(intersect(indP0, indQ0)) ~= length(indQ0)
     msg = sprintf(['KL not defined because at least one value satifies:', ...
-        'P(i) = 0 & Q(i) ~= 0']);
+        'Q(i) = 0 & P(i) ~= 0']);
     KL = NaN;
 else
-    ind = Q > 0;
+    % When P(i) is zero, the contribution is interpreted as zero (since lim
+    % of xlog(x) = 0 when x approaches 0). So these terms are simply
+    % removed from the sum.
+    ind = P > 0;
     KL = sum(P(ind) .* (log(P(ind)) - log(Q(ind))), 2);
 end
 
