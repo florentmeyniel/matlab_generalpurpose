@@ -37,5 +37,5 @@ if ~isempty(varargin)
     end
 end
 T = nanmean(X, dim) ./ stderror(X, dim);
-df = size(X, dim);
+df = size(X, dim) - 1;
 end

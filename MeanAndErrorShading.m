@@ -1,7 +1,8 @@
-function MeanAndErrorShading(M, SEM, alpha, colm, colsd, LWm, LWsd, contourstyle)
+function [h] = MeanAndErrorShading(xval, M, SEM, alpha, colm, colsd, LWm, LWsd, contourstyle)
 % Plot M and +/- SEM as a shaded area.
 %
-% Usage: MeanAndErrorShading(M, SEM, alpha, colm, colsd, LWm, LWsd, contourstyle)
+% Usage: MeanAndErrorShading(xval, M, SEM, alpha, colm, colsd, LWm, LWsd, contourstyle)
+%   xval - the [1 x n] vector of mean values (it can be [])
 %   M - the [1 x n] vector of mean values
 %   SEM - the [1 x n] vector of error values
 %   alpha - transparenct coefficient of the shadding (>0 and <1)
@@ -11,6 +12,9 @@ function MeanAndErrorShading(M, SEM, alpha, colm, colsd, LWm, LWsd, contourstyle
 %   LWsd - the line width of the mean ([] set to 1)
 %   contourstyle - the contour style '-', '--', ':', '-.' or 'none' ([] set
 %   to 'none')
+% 
+%   h is the "plot" handle (useful for figure legend when this function is
+%   called multiple times.
 %
 % Florent Meyniel 2011-08-16
 
@@ -41,7 +45,13 @@ AZ_ind = find(~isnan(AZ));
 AZ = AZ(AZ_ind);
 BZ = BZ(AZ_ind);
 
-fill([AZ_ind flipud(AZ_ind')'],[AZ flipud(BZ')'],...
+if ~isempty(xval)
+    AZ_val = xval(AZ_ind);
+else
+    AZ_val = AZ_ind; 
+end
+
+fill([AZ_val flipud(AZ_val')'],[AZ flipud(BZ')'],...
     'k', ...                            % what is this line for? but it doesn't work without it...
     'EdgeColor', colsd, ... 
     'LineWidth',LWsd,...
@@ -49,5 +59,5 @@ fill([AZ_ind flipud(AZ_ind')'],[AZ flipud(BZ')'],...
     'FaceColor',colsd,...
     'FaceAlpha',alpha);
 hold on
-plot(M, 'LineWidth', LWm, 'Color', colm)
+h = plot(AZ_val, M, 'LineWidth', LWm, 'Color', colm);
 

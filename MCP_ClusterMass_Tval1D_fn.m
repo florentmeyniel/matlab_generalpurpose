@@ -1,17 +1,17 @@
 function [Cluster, StatAtFDR] = MCP_ClusterMass_Tval1D_fn(x, t_thd, FDR, nrand, method, methodperm)
 % Non parametric estimation of cluster False Discovery Rate, testing for
-% the data significance away from 0. This aims at addressing the multiple
-% comparison issue, i.e of comparing the significance away from 0 across
-% mutliple time bins. 
+% the data significance away from 0. The aim is to address the multiple
+% comparisons issue, i.e of comparing the significance away from 0 across
+% multiple tests (e.g. time bins). 
 %
-% NB: the algorithm use a permutation strategy that avoid any repetition.
+% NB: The algorithm uses a permutation strategy that avoids repetitions.
 %
 % Usage: [Cluster, StatAtFDR] = MCP_ClusterMass_Tval1D_fn(x, t_thd, FDR, nrand, method, methodperm)
 %
 % Output
-%    Cluster{i}.p_unilpos : 0< FDR <1 for a higher cluster stat (unilateral)
-%    Cluster{i}.p_unilneg : 0< FDR <1 for a lower cluster stat (unilateral)
-%    Cluster{i}.p_bilat   : 0< FDR <1 for a lower & higher cluster stat (bilateral)
+%    Cluster{i}.p_unilpos : 0 < FDR < 1 for a higher cluster stat (unilateral)
+%    Cluster{i}.p_unilneg : 0 < FDR < 1 for a lower cluster stat (unilateral)
+%    Cluster{i}.p_bilat   : 0 < FDR < 1 for a lower & higher cluster stat (bilateral)
 %    Cluster{i}.ind       : indices of the cluster in the time series
 %    Cluster{i}.t         : t-values of the cluster in the time series
 %    Cluster{i}.stat      : cluster stat
@@ -21,16 +21,16 @@ function [Cluster, StatAtFDR] = MCP_ClusterMass_Tval1D_fn(x, t_thd, FDR, nrand, 
 %    StatAtFDR(2, :) : cluster stat interval (lower, higher) at FDR for a more extreme stat (bilateral)
 %
 % Input
-%    x      : [nreplicate x ntimes] matrix of time series. replicate can be subjects for instance
-%    t_thd  : t-value threshold to define cluster on the t-values computed from x
-%    FDR    : (optional) False Discovery Rate (0< FDR < 1), i.e. the fraction of
+%    x      : [nreplicates x ntimes] matrix of time series. replicates can be subjects for instance
+%    t_thd  : threshold to define clusters on the t-values computed from x
+%    FDR    : (optional) False Discovery Rate (0 < FDR < 1), i.e. the fraction of
 %             clusters (defined using t_thd) of having, by chance, a higher cluster
 %             statistics (Default = 0.05)
-%    nrand  : (optional) amount of randomization to estimate the null-hypothesis
+%    nrand  : (optional) number of randomizations to estimate the null-hypothesis
 %             distribution (Default = 10000)
 %    method : (optional) cluster statistic. Can be 'size' (cluster size) or 'weight'
 %             (Default, cluster sum of values)
-% methodperm: (optional) 'exact' to use exactely distinct permutations (but
+% methodperm: (optional) 'exact' to use exactly distinct permutations (but
 %             time & memory demanding) or 'approx' to compute random
 %             permutations (Default = approx)
 %
@@ -79,8 +79,8 @@ end
 
 % INITIALIZE VARIABLES
 % ====================
-nr      = size(x, 1); % amount of replicate
-ns      = size(x, 2); % amount of data point (per replicate)
+nr      = size(x, 1); % number of replicate
+ns      = size(x, 2); % number of data point (per replicate)
 MaxStat = zeros(1, nrand);
 MinStat = zeros(1, nrand);
 AbsStat = zeros(1, nrand);
@@ -96,10 +96,10 @@ switch methodperm
             % select a random subset of permutations
             nrandall = size(allposs, 1);
             indall = randperm(nrandall);
-            randtable(:,:) = allposs(indall(1:nrand),:)';
+            randtable(:, :) = allposs(indall(1:nrand), :)';
             
         catch
-            warning('exact method exceedes capacity -> use approx. instead')
+            warning('exact method exceeds capacity -> use approx. instead')
             
             randper = double(rand(nr, nrand) > 0.5);
             randper(randper(:) == 0) = -1;
@@ -121,7 +121,7 @@ for i_rand = 1:nrand
     % compute the t-values
     t_rand = mean(x_rand, 1) ./ stderror(x_rand, 1);
     
-    % Distribution for a higher statitics
+    % Distribution for a higher statistics
     [clusterstart, clusterend, ncluster] = clusterize(t_rand > t_thd);
     clustat = zeros(1, ncluster);
     for i_cluster = 1:ncluster
@@ -131,7 +131,7 @@ for i_rand = 1:nrand
             MaxStat(i_rand) = max(clustat);
     end
     
-    % Distribution for a lower statitics
+    % Distribution for a lower statistics
     [clusterstart, clusterend, ncluster] = clusterize(t_rand < -t_thd);
     clustat = zeros(1, ncluster);
     for i_cluster = 1:ncluster
@@ -141,7 +141,7 @@ for i_rand = 1:nrand
             MinStat(i_rand) = min(clustat);
     end
     
-    % Distribution for a more extreme statitics
+    % Distribution for a more extreme statistics
     [clusterstart, clusterend, ncluster] = clusterize(abs(t_rand) > t_thd);
     clustat = zeros(1, ncluster);
     for i_cluster = 1:ncluster
@@ -188,11 +188,13 @@ for i_cluster = 1:ncluster
     Cluster{i_cluster}.stat      = clustat(i_cluster);
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%SUBFUNCTION%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% SUBFUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [clusterstart, clusterend, ncluster] = clusterize(data)
     
-    % data = vector of 0 and 1 value. The function clusterize the
-    % neighbouring equal value (i.e cluster of 1s and 0s)
+    % data = vector of 0s and 1s. The function clusterizes the
+    % neighbouring values that are equal (i.e make clusters 
+    % of 1s and 0s)
     
     if size(data, 1) < size(data, 2)
        data = data'; 

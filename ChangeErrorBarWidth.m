@@ -2,7 +2,11 @@ function ChangeErrorBarWidth(h, w)
 % ChangeErrorBarWidth(handle, width)
 
 if strfind(version, 'R2015')
-    
+elseif strfind(version, 'R2016')
+    chh = get(h, 'Parent');
+    % adjust errorbar marker size
+    Xdata = get(h, 'Xdata') + [-w w];
+    set(chh, 'XLim', Xdata)
 else
     chh = get(h, 'Children');
     % adjust errorbar marker size
