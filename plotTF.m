@@ -6,8 +6,8 @@ function plotTF(X, XTicks, XFlag, YTicks, YFlag, fig, title, ColorLim)
 %
 % X: [freq x time] data matrix. Freq increases over lines and time 
 %    increases over columns
-% XTicks / XFlag: to specify the X axis (optional)
-% YTicks / YFlag: to specify the Y axis (optional)
+% XTicks / XFlag: to specify the X axis (XFlag is optional)
+% YTicks / YFlag: to specify the Y axis (YFlag is optional)
 % fig: figure handle (optional)
 % title: window title (optional)
 % ColorLim: [Low High] bound of the color sclare, or 'maxabs' (optional)
