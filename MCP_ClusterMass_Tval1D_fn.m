@@ -70,7 +70,7 @@ else
     end
 end
 
-if ~exist('method', 'var')
+if ~exist('methodperm', 'var')
     methodperm = 'approx';
 elseif ~(strcmp(methodperm, 'approx') || strcmp(methodperm, 'exact'))
         error('unknow tail type %s, must be ''approx'', ''exact''', methodperm)
@@ -170,7 +170,7 @@ StatAtFDR(2,:) = prctile(AbsStat, 100*[FDR/2 1-FDR/2]);
 t = mean(x, 1) ./ stderror(x, 1);
 
 % get data cluster
-[clusterstart, clusterend, ncluster] = clusterize(t > t_thd);
+[clusterstart, clusterend, ncluster] = clusterize(abs(t) > abs(t_thd));
 clustat = zeros(1, ncluster);
 Cluster = cell(ncluster, 1);
 for i_cluster = 1:ncluster
@@ -180,7 +180,7 @@ for i_cluster = 1:ncluster
     % compute FDR of the cluster statistics
     Cluster{i_cluster}.p_unilpos = ClusterStatFun(MaxStat>clustat(i_cluster))/nrand;
     Cluster{i_cluster}.p_unilneg = ClusterStatFun(MinStat<clustat(i_cluster))/nrand;
-    Cluster{i_cluster}.p_bilat   = ClusterStatFun(abs(AbsStat)>clustat(i_cluster))/nrand;
+    Cluster{i_cluster}.p_bilat   = ClusterStatFun(abs(AbsStat)>abs(clustat(i_cluster)))/nrand;
     
     % report cluster characteristics
     Cluster{i_cluster}.ind       = clusterstart(i_cluster) : clusterend(i_cluster);
